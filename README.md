@@ -7,4 +7,4 @@ This is the **source code** for the game *Malfunction*. You can:
 
 🚀 **Ready to use!**  
 
----
+![屏幕截图 2025-05-04 215114](https://github.com/user-attachments/assets/dd7474ff-13c6-4e4c-b9aa-f3a5279ad0c8)
