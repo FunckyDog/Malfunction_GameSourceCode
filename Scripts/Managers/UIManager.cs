@@ -18,11 +18,11 @@ public class UIManager : Singleton<UIManager>
     public CanvasGroup gamFinishedPanelCG;
     public Button pauseButton, HTPButton;
 
-
     [Header("¶¯»­Æ÷")]
     public Animator gamePanelAnim;
     public Animator pausePanelAnim;
     public Animator mainMenuPanelAnim;
+
     protected override void Awake()
     {
         base.Awake();
@@ -34,6 +34,8 @@ public class UIManager : Singleton<UIManager>
     private void Start()
     {
         //StartCoroutine(ExtractAttributeAni());
+        gamePanelAnim.gameObject.SetActive(false);
+        mainMenuPanelObject.gameObject.SetActive(true);
         Cursor.SetCursor(simpleCursur, new Vector2(20, 4), CursorMode.Auto);
         RecoverText();
     }
@@ -47,7 +49,7 @@ public class UIManager : Singleton<UIManager>
             PausePanel();
 
 #if UNITY_STANDALONE
-        if (pausePanelObject.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+        if (pausePanelObject.activeSelf && Input.GetKeyDown(KeyCode.Q))
             Application.Quit();
 #endif
 
@@ -73,7 +75,9 @@ public class UIManager : Singleton<UIManager>
         bool UIObjectActive = UIObject.activeSelf;
         UIObjectActive = !UIObjectActive;
         UIObject.SetActive(UIObjectActive);
-        MusicController.instance.mixer.SetFloat("MasterVolume", UIObject.activeSelf ? -10 : 0);
+        MusicController.instance.mixer.SetFloat("LowpassCutoff", UIObject.activeSelf ? 1000 : 10000);
+        //LowpassCutoff
+        //MasterVolume
     }
 
     public void PausePanel()
@@ -107,7 +111,7 @@ public class UIManager : Singleton<UIManager>
     {
         float attributeValue = Mathf.Sign(GameManager.instance.leftOffsetAttribute.consumptionValue) > 0 ? GameManager.instance.leftOffsetAttribute._currentValue : GameManager.instance.leftOffsetAttribute.minValue + GameManager.instance.leftOffsetAttribute.maxValue - GameManager.instance.leftOffsetAttribute._currentValue;
         Vector3 pos = Vector2.right * Mathf.Lerp(-offsetBarRectTrans.rect.width / 2, offsetBarRectTrans.rect.width / 2, Mathf.InverseLerp(GameManager.instance.leftOffsetAttribute.minValue, GameManager.instance.leftOffsetAttribute.maxValue, attributeValue));
-        offsetBarRectTrans.GetChild(0).localPosition = pos;
+        offsetBarRectTrans.GetChild(0).localPosition = pos * 0.95f;
         offsetBarRectTrans.GetComponent<Image>().color = Color.Lerp(GameManager.instance.leftOffsetAttribute.displayColor, GameManager.instance.rightOffsetAttribute.displayColor, Mathf.InverseLerp(GameManager.instance.leftOffsetAttribute.minValue, GameManager.instance.leftOffsetAttribute.maxValue, attributeValue));
     }
 
@@ -209,8 +213,8 @@ public class UIManager : Singleton<UIManager>
         EventsHandler.CallLevelFinished();
         mainMenuPanelObject.SetActive(false);
         gamePanelAnim.gameObject.SetActive(true);
-        pauseButton.gameObject.SetActive(pausePanelObject.activeSelf);
-        HTPButton.gameObject.SetActive(pausePanelObject.activeSelf);
+        pauseButton.gameObject.SetActive(true);
+        HTPButton.gameObject.SetActive(true);
         PlayerController.instance.Refresh();
         Cursor.SetCursor(aimCursur, new Vector2(32, 32), CursorMode.Auto);
         allowPause = true;
@@ -232,5 +236,4 @@ public class UIManager : Singleton<UIManager>
         levelCountText.color = Color.black;
         levelCountText.DOColor(Color.clear, 3).SetEase(Ease.InCirc);
     }
-
 }

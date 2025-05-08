@@ -76,7 +76,7 @@ public class Enemy : MonoBehaviour, IGetHurt
         hurtArea.enabled = false;
         yield return waitForDead;
         GameManager.instance.grindEnemyCountInCurrentWave--;
-        if (Random.Range(0f, 1f * GameManager.instance.supplyProbability) < 1f * GameManager.instance.supplyProbability)
+        if (Random.Range(0f, 1f) < 1f * GameManager.instance.supplyProbability)
         {
             Supply _lootSupply = PoolManager.instance.GetObject(lootPrefab).GetComponent<Supply>();
             _lootSupply.transform.position = transform.position;

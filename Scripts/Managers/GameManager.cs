@@ -27,8 +27,9 @@ public class GameManager : Singleton<GameManager>
     private void Start()
     {
         //RandomAttribute();//HACK:≤‚ ‘”√£¨º«µ√…æ
-        //EventsHandler.CallLevelFinished();
+
         //InitializeAttributes();
+        Restart();
     }
 
     private void OnDrawGizmos()
@@ -45,7 +46,7 @@ public class GameManager : Singleton<GameManager>
 
     private void Update()
     {
-        if (isAllowGrindEnemy && grindEnemyCountInCurrentWave == 0)
+        if (currentLevelData && isAllowGrindEnemy && grindEnemyCountInCurrentWave == 0)
         {
             currentWaveCount++;
             if (currentWaveCount == currentLevelData.waveGrindEnemyDatas.Length + 1)
@@ -74,7 +75,7 @@ public class GameManager : Singleton<GameManager>
                         break;
                 }
         }
-        if (currentLevelCount > difficultyRatingByWaveCount.Last())
+        if (currentLevelCount >= difficultyRatingByWaveCount.Last())
             currentLevelData = hardLevelDataGroup.RandomExtract();
 
         extractedLevelData.Add(currentLevelData);
@@ -123,5 +124,18 @@ public class GameManager : Singleton<GameManager>
         midddleLevelDataGroup.ReBackObjectToList(levelData);
         hardLevelDataGroup.ReBackObjectToList(levelData);
         extractedLevelData.Remove(levelData);
+    }
+
+    public void Restart()
+    {
+        instance.currentLevelCount = 0;
+        LoadManager.instance.SceneLoadAction(19);
+        UIManager.instance.gamFinishedPanelCG.alpha = 0;
+        UIManager.instance.mainMenuPanelObject.SetActive(true);
+        UIManager.instance.gamePanelAnim.gameObject.SetActive(false);
+        UIManager.instance.pauseButton.gameObject.SetActive(false);
+        UIManager.instance.HTPButton.gameObject.SetActive(false);
+        CameraController.instance.followTargetTrans.position = PlayerController.instance.transform.position = LoadManager.instance.firstPlayerLoadPos;
+        EventsHandler.CallLevelFinished();
     }
 }

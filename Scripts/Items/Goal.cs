@@ -7,14 +7,7 @@ public class Goal : Singleton<Goal>
     {
         if (UIManager.instance.gamFinishedPanelCG.alpha == 1 && Input.GetKeyDown(KeyCode.Escape))
         {
-            UIManager.instance.gamFinishedPanelCG.alpha = 0;
-            LoadManager.instance.SceneLoadAction(LoadManager.instance.firstSceneData.sceneIndex);
-            UIManager.instance.mainMenuPanelObject.SetActive(true);
-            UIManager.instance.gamePanelAnim.gameObject.SetActive(false);
-            UIManager.instance.titleText.gameObject.SetActive(true);
-            PlayerController.instance.transform.position = LoadManager.instance.firstPlayerLoadPos;
-            GameManager.instance.currentLevelData = null;
-            GameManager.instance.currentLevelCount = 0;
+            GameManager.instance.Restart();
         }
     }
 

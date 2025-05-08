@@ -5,7 +5,6 @@ public class AttributeData_SO : ScriptableObject
 {
     public string attributeName;
     public int textSize;
-    public int audioTrackIndex;
     public float minValue, maxValue, consumptionValue;
     public Color displayColor;
 
@@ -46,7 +45,7 @@ public class AttributeData_SO : ScriptableObject
     {
         value *= PlayerController.instance.offsetDir;
 
-        if (GameManager.instance.consumpteAttribute || GameManager.instance.leftOffsetAttribute == this || GameManager.instance.rightOffsetAttribute == this)
+        if (GameManager.instance.leftOffsetAttribute == this || GameManager.instance.rightOffsetAttribute == this)
             _currentValue -= value;
 
         if (GameManager.instance.leftOffsetAttribute && GameManager.instance.rightOffsetAttribute)

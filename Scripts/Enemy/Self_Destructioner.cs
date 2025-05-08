@@ -29,11 +29,8 @@ public class Self_Destructioner : Chaser
         {
             destructionWaitTime += Time.deltaTime;
         }
-        if (destructionWaitTime > destructionTime)
-        {
-            attackArea.enabled = true;
+        if ( destructionWaitTime > destructionTime)
             GetHurt(transform.position, 0, currentHealth);
-        }
     }
 
     protected override void Move()
@@ -64,14 +61,21 @@ public class Self_Destructioner : Chaser
 
     protected override IEnumerator Dead()
     {
-        GameManager.instance.grindEnemyCountInCurrentWave--;
+        attackArea.enabled = true;
         yield return new WaitForFixedUpdate();
+        GameManager.instance.grindEnemyCountInCurrentWave--;
 
-        if (Random.Range(0f, 1f * GameManager.instance.supplyProbability) < 1f * GameManager.instance.supplyProbability)
-            PoolManager.instance.GetObject(lootPrefab).transform.position = transform.position;
+        if (Random.Range(0f, 1f) < 1f * GameManager.instance.supplyProbability)
+        {
+            Supply _lootSupply = PoolManager.instance.GetObject(lootPrefab).GetComponent<Supply>();
+            _lootSupply.transform.position = transform.position;
+            _lootSupply._particle = PoolManager.instance.GetObject(_lootSupply.particlePrefab);
+            _lootSupply._particle.transform.position = _lootSupply.transform.position;
+        }
 
         PoolManager.instance.GetObject(GetComponentInChildren<EnemyAnimation>().deadParticlePrefab).transform.position = transform.position;
         CameraController.instance.enemyDestructionCIS.GenerateImpulse();
+        GetComponentInChildren<Self_DestructionerAnimation>().bodyStacker.ObjectColor(Color.white);
         PoolManager.instance.PushObject(gameObject);
     }
 }

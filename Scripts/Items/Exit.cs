@@ -36,6 +36,12 @@ public class Exit : MonoBehaviour
     {
         if (GameManager.instance.currentLevelData)
             platfromTrans.localPosition = GameManager.instance.currentLevelData.exitPosBeforeEnterScene;
+
+        else if (GameManager.instance.currentLevelCount == 0)
+            platfromTrans.localPosition = Vector2.zero;
+
+        else
+            platfromTrans.localPosition = LoadManager.instance.firstSceneData.exitPosBeforeEnterScene;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -43,45 +49,53 @@ public class Exit : MonoBehaviour
         if (collision.name == "Body Area" && collision.transform.parent.name == "///Player")
         {
             exitArea.enabled = false;
-            PlayerController.instance.bodyArea.enabled = PlayerController.instance.hurtArea.enabled = false;
             GameManager.instance.currentLevelCount++;
+
             PlayerAnimation.instance.ChangeLayer("Back Scene");
             PlayerController.instance.UnGetInput();
             PlayerController.instance.transform.SetParent(platfromTrans);
+            StopCoroutine(nameof(PlayerController.instance.Hurt));
+            PlayerController.instance.isHurt = false;
+            PlayerController.instance.bodyArea.enabled = PlayerController.instance.hurtArea.enabled = false;
+            PlayerAnimation.instance.feetSR.enabled = PlayerAnimation.instance.eyesSR.enabled = true;
+            PlayerAnimation.instance.bodySpriteTrans.gameObject.SetActive(true);
 
-            GetComponent<SoundEffectPlayer>().PlaySoundEffect(0);
             UIManager.instance.allowPause = false;
             CameraController.instance.CC.m_BoundingShape2D = null;
             CameraController.instance.CVC.Follow = platfromTrans;
-            particle.Stop();
             CameraController.instance.exitCIS.GenerateImpulse();
+            particle.Stop();
+            GetComponent<SoundEffectPlayer>().PlaySoundEffect(0);
 
             for (int i = 1; i < MusicController.instance.tracks.Length; i++)
                 MusicController.instance.DescreaseMusic(i);
 
-            platfromTrans.DOMove(GameManager.instance.currentLevelData.exitPosAfterLeaveScene, 5f).SetEase(Ease.InSine).OnComplete(() =>
-            {
-                if (GameManager.instance.currentLevelCount > 13)
+            if (GameManager.instance.currentLevelCount > 13)
+                platfromTrans.DOMove(LoadManager.instance.firstSceneData.exitPosAfterLeaveScene, 5f).SetEase(Ease.InSine).OnComplete(() =>
                 {
-                    LoadManager.instance.SceneLoadAction(19);
                     GameManager.instance.consumpteAttribute = GameManager.instance.leftOffsetAttribute = GameManager.instance.rightOffsetAttribute = null;
-                }
+                    LoadManager.instance.SceneLoadAction(19);
+                    GameManager.instance.currentLevelData = null;
+                    StartCoroutine(EnterNextLevel());
+                });
 
-                else
+            else
+            {
+                GameManager.instance.RandomLevel();
+                platfromTrans.DOMove(GameManager.instance.currentLevelData.exitPosAfterLeaveScene, 5f).SetEase(Ease.InSine).OnComplete(() =>
                 {
                     GameManager.instance.RandomAttribute();
                     GameManager.instance.InitializeAttributes();
-                    GameManager.instance.RandomLevel();
                     LoadManager.instance.LevelLoadAction(GameManager.instance.currentLevelData);
-                }
-                StartCoroutine(EnterNextLevel());
-            });
+                    StartCoroutine(EnterNextLevel());
+                });
+            }
         }
     }
 
     IEnumerator EnterNextLevel()
     {
-        if (GameManager.instance.currentLevelData.waveGrindEnemyDatas.Length != 0)
+        if (GameManager.instance.currentLevelData)
             yield return UIManager.instance.ExtractAttributeAni();
 
         PlayerAnimation.instance.ChangeLayer("Fore Scene");
@@ -101,8 +115,9 @@ public class Exit : MonoBehaviour
             CameraController.instance.CVC.Follow = CameraController.instance.followTargetTrans;
             Confiner.instance.SetConfiner();
 
-            if (GameManager.instance.currentLevelData != LoadManager.instance.firstSceneData)
+            if (GameManager.instance.currentLevelData)
                 UIManager.instance.LevelCountText("LEVEL " + GameManager.instance.currentLevelCount.ToString());
+
             else
             {
                 UIManager.instance.LevelCountText("LEVEL 0");

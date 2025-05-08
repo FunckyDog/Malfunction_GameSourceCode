@@ -26,15 +26,19 @@ public class CameraController : Singleton<CameraController>
     private void OnEnable()
     {
         EventsHandler.BeforeSceneLoad += OnBeforeSceneLoad;
+        EventsHandler.AfterSceneLoad += OnAfterSceneLoad;
     }
 
     private void OnDisable()
     {
         EventsHandler.BeforeSceneLoad -= OnBeforeSceneLoad;
+        EventsHandler.AfterSceneLoad -= OnAfterSceneLoad;
     }
 
     private void OnBeforeSceneLoad()
     {
         CVC.transform.position = new Vector3(PlayerController.instance.transform.position.x, PlayerController.instance.transform.position.y, -10);
     }
+
+    private void OnAfterSceneLoad() => mainCamera.SetActive(true);
 }

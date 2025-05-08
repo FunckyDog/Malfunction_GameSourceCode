@@ -11,13 +11,13 @@ public class LoadManager : Singleton<LoadManager>
 
     private void Start()
     {
-        SceneLoadAction(firstSceneData.sceneIndex);//HACK:测试用，记得改
-        PlayerController.instance.transform.position = firstPlayerLoadPos;
-        GameManager.instance.currentLevelData = firstSceneData;
+
     }
 
-    public void SceneLoadAction(int sceneIndex) => StartCoroutine(UnloadScene(sceneIndex));
-
+    public void SceneLoadAction(int sceneIndex)
+    {
+        StartCoroutine(UnloadScene(sceneIndex));
+    }
     public void LevelLoadAction(LevelData_SO levelData) => StartCoroutine(UnloadScene(levelData.sceneIndex));
 
     public IEnumerator UnloadScene(int sceneIndex)

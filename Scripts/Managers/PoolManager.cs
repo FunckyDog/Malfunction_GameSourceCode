@@ -27,6 +27,11 @@ public class PoolManager : Singleton<PoolManager>
         EventsHandler.BeforeSceneLoad -= PushAllObject;
     }
 
+    private void Start()
+    {
+        //PushAllObject();
+    }
+
     public void SetPools()
     {
         for (int i = 0; i < poolDataList.Count; i++)
@@ -88,17 +93,11 @@ public class PoolManager : Singleton<PoolManager>
 
         else
         {
-            if (poolDict[_name].Contains(gameObject))
-                return;
+            Transform poolParent = GameObject.Find("#Poll : " + _name).transform;
+            gameObject.transform.SetParent(poolParent);
 
-            else
-            {
-                Transform poolParent = GameObject.Find("#Poll : " + _name).transform;
-                gameObject.transform.SetParent(poolParent);
-
-                poolDict[_name].Enqueue(gameObject);
-                gameObject.SetActive(false);
-            }
+            poolDict[_name].Enqueue(gameObject);
+            gameObject.SetActive(false);
         }
     }
 
@@ -106,6 +105,7 @@ public class PoolManager : Singleton<PoolManager>
     {
         for (int i = 0; i < poolsParent.transform.childCount; i++)
             for (int j = 0; j < poolsParent.transform.GetChild(i).childCount; j++)
+                if (poolsParent.transform.GetChild(i).GetChild(j).gameObject.activeSelf)
                     PushObject(poolsParent.transform.GetChild(i).GetChild(j).gameObject);
     }
 }

@@ -65,6 +65,8 @@ public class PlayerController : Singleton<PlayerController>, IGetHurt
 
     private void GetInput()
     {
+        health.SetValue(health.consumptionValue * Time.deltaTime);
+
         movement = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         if (Input.GetMouseButton(0))
@@ -84,7 +86,6 @@ public class PlayerController : Singleton<PlayerController>, IGetHurt
     {
         allowInput = false;
         movement = Vector2.zero;
-        Move();
     }
 
     void Direction()
@@ -118,16 +119,14 @@ public class PlayerController : Singleton<PlayerController>, IGetHurt
     {
         hurtArea.enabled = false;
         UnGetInput();
-        if (GameManager.instance.consumpteAttribute != health)
-            health._currentValue -= damage;
         rb.AddForce(((Vector2)transform.position - bulletPos).normalized * force, ForceMode2D.Impulse);
 
         if (GameManager.instance.consumpteAttribute)
         {
-            GameManager.instance.consumpteAttribute.SetValue(Mathf.Sign(GameManager.instance.consumpteAttribute.consumptionValue) *
-                (Mathf.Sign(GameManager.instance.consumpteAttribute.consumptionValue) >= 0 ? GameManager.instance.consumpteAttribute._currentValue - GameManager.instance.consumpteAttribute.minValue
-                : GameManager.instance.consumpteAttribute.minValue + GameManager.instance.consumpteAttribute.maxValue - GameManager.instance.consumpteAttribute._currentValue)
-                * damage / 10);
+            GameManager.instance.consumpteAttribute._currentValue =
+                Mathf.Lerp(GameManager.instance.consumpteAttribute.minValue, GameManager.instance.consumpteAttribute.maxValue,
+                Mathf.InverseLerp(GameManager.instance.consumpteAttribute.minValue, GameManager.instance.consumpteAttribute.maxValue,
+                GameManager.instance.consumpteAttribute._currentValue) - Mathf.Sign(GameManager.instance.consumpteAttribute.consumptionValue) * damage / 10);
 
             if (Mathf.InverseLerp(GameManager.instance.consumpteAttribute.minValue, GameManager.instance.consumpteAttribute.maxValue, GameManager.instance.consumpteAttribute._currentValue) > 0)
                 StartCoroutine(Hurt());
@@ -141,7 +140,7 @@ public class PlayerController : Singleton<PlayerController>, IGetHurt
         VolumeController.instance.ChromaticAberrationShake(1, 2f);
     }
 
-    IEnumerator Hurt()
+    public IEnumerator Hurt()
     {
         isHurt = true;
         GetComponentInChildren<SoundEffectPlayer>().PlaySoundEffect(0, 0.5f);
